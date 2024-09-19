@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>By KoTim</title>
     <style>
-        /* Установка черного фона */
+        /* Стили как ранее */
         body {
             margin: 0;
             height: 100vh;
@@ -19,14 +19,15 @@
             transition: background 1s ease-in-out, color 1s ease-in-out;
         }
 
-        /* Анимация для аббревиатуры и расшифровки */
         #animation-container {
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        h1, h2, h3 {
+        h1,
+        h2,
+        h3 {
             color: white;
             text-align: center;
             margin: 0;
@@ -51,7 +52,6 @@
             animation: fadeIn 1s forwards 2.5s;
         }
 
-        /* Плавное появление текста */
         @keyframes fadeIn {
             0% {
                 opacity: 0;
@@ -210,6 +210,16 @@
         <button class="button" onclick="showTimeFrameSelect()">Статистика</button>
     </div>
 
+    <!-- Выбор промежутка времени -->
+    <div id="timeFrameSelect" style="display:none;">
+        <h2 style="color: white;">Выберите период:</h2>
+        <button class="button" onclick="showStats('сегодня')">Сегодня</button>
+        <button class="button" onclick="showStats('вчера')">Вчера</button>
+        <button class="button" onclick="showStats('неделя')">Неделя</button>
+        <br><br>
+        <button class="button" onclick="goBack()">Назад</button>
+    </div>
+
     <!-- Форма для добавления трат -->
     <div id="expenseForm" style="display:none; text-align: center;">
         <h2 style="color: white;">Добавить трату</h2>
@@ -249,9 +259,8 @@
         let chart = null;
         let changeType = '';
 
-        // После 4 секунд скрываем аббревиатуру и показываем экран профиля
+        // После 4 секунд показываем экран профиля
         setTimeout(() => {
-            document.getElementById('animation-container').style.display = 'none';
             document.getElementById('profileContainer').style.display = 'flex';
         }, 4000);
 
@@ -345,6 +354,7 @@
                 expenseHistory.push({ type: 'Трата', category, amount, date: new Date() });
                 document.getElementById('budgetDisplay').textContent = `Ваш бюджет: ${formatMoney(remainingBudget)} р.`;
                 alert(`Трата добавлена: ${category}, ${formatMoney(amount)} рублей`);
+                updateChart();
             } else {
                 alert("Введите корректную сумму.");
             }
