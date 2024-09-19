@@ -3,10 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test App</title>
+    <title>By KoTim</title>
+    <style>
+        /* Установка фона с анимацией градиента */
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(45deg, #FFC0CB, #FFB6C1, #FF69B4, #FF1493, #C71585, #DB7093);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Анимация переливания градиента */
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Стиль текста в центре */
+        h1 {
+            color: white;
+            font-size: 4em;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <h1>Привет, это тестовая страница!</h1>
-    <p>Эта страница должна отображаться правильно.</p>
+    <h1>By KoTim</h1>
 </body>
 </html>
