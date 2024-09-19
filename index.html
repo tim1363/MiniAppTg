@@ -15,7 +15,7 @@
             align-items: center;
             background: linear-gradient(45deg, #FFC0CB, #FFB6C1, #FF69B4, #FF1493, #C71585, #DB7093);
             background-size: 400% 400%;
-            animation: gradientAnimation 3s ease infinite; /* Переливание на 3 секунды */
+            animation: gradientAnimation 3s ease infinite;
             font-family: Arial, sans-serif;
             transition: background 1s ease-in-out, color 1s ease-in-out;
         }
@@ -78,6 +78,46 @@
             text-align: center;
         }
 
+        /* Позиционирование кнопок "+" и "-" в верхних углах */
+        #plusButton, #minusButton {
+            position: absolute;
+            top: 10px;
+            font-size: 2em;
+            padding: 10px;
+            color: white;
+            cursor: pointer;
+        }
+
+        #plusButton {
+            right: 20px;
+        }
+
+        #minusButton {
+            left: 20px;
+        }
+
+        /* Стили модальных окон */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+        }
+
         /* После 3 секунд фон станет черным */
         body.black-bg {
             background-color: black;
@@ -96,36 +136,12 @@
             margin-top: 20px;
         }
 
-        /* Стиль для истории трат */
+        /* Стиль для истории изменений */
         .expense-history {
             margin-top: 10px;
             color: white;
             text-align: center;
             font-size: 1.2em;
-        }
-
-        /* Стили для выбора промежутка времени */
-        #timeFrameSelect {
-            display: none;
-            text-align: center;
-        }
-
-        .time-frame-button {
-            padding: 10px 20px;
-            margin: 10px;
-            border: 2px solid white;
-            background-color: transparent;
-            color: white;
-            font-size: 1.2em;
-            cursor: pointer;
-            transition: background-color 0.3s ease, color 0.3s ease;
-            width: 80%;
-            max-width: 300px;
-        }
-
-        .time-frame-button:hover {
-            background-color: white;
-            color: black;
         }
 
         #expenseChart {
@@ -136,6 +152,24 @@
 </head>
 <body>
     <h1 id="mainText">Траты</h1>
+
+    <!-- Кнопки "+" и "-" в углах экрана -->
+    <div id="plusButton" onclick="openModal('add')">+</div>
+    <div id="minusButton" onclick="openModal('subtract')">−</div>
+
+    <!-- Модальное окно для добавления или вычитания денег -->
+    <div class="modal" id="budgetModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Изменение бюджета</h2>
+            <input class="input-field" type="number" id="budgetChangeAmount" placeholder="Введите сумму">
+            <br><br>
+            <label for="reason">Причина изменения:</label>
+            <input class="input-field" type="text" id="changeReason" placeholder="Причина">
+            <br><br>
+            <button class="button" onclick="applyBudgetChange()">Применить</button>
+            <button class="button" onclick="closeModal()">Отмена</button>
+        </div>
+    </div>
 
     <!-- Контейнер для заполнения профиля -->
     <div class="profile-container" id="profileContainer">
@@ -187,7 +221,7 @@
     <!-- Диаграмма для статистики -->
     <canvas id="expenseChart" width="300" height="300" style="display:none;"></canvas>
 
-    <!-- История трат -->
+    <!-- История изменений -->
     <div class="expense-history" id="expenseHistory" style="display:none;"></div>
 
     <button class="button" id="backButton" style="display:none;" onclick="goBack()">Назад</button>
@@ -195,10 +229,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         let totalExpenses = { магазины: 0, развлечения: 0, еда: 0, транспорт: 0 };
-        let expenseHistory = []; // История трат
+        let expenseHistory = []; // История трат и изменений
         let budget = 0; // Бюджет пользователя
         let remainingBudget = 0; // Оставшиеся деньги
         let chart = null; // Объект диаграммы
+        let changeType = ''; // Тип изменения (добавление или вычитание)
 
         // Через 3 секунды показываем экран профиля
         setTimeout(() => {
@@ -223,6 +258,43 @@
             document.getElementById('budgetDisplay').textContent = `Ваш бюджет: ${remainingBudget} р.`;
             document.getElementById('profileContainer').style.display = 'none';
             document.getElementById('buttonContainer').style.display = 'flex';
+        }
+
+        // Показать модальное окно для изменения бюджета
+        function openModal(type) {
+            changeType = type;
+            document.getElementById('modalTitle').textContent = type === 'add' ? 'Добавить в бюджет' : 'Уменьшить бюджет';
+            document.getElementById('budgetModal').style.display = 'flex';
+        }
+
+        // Закрыть модальное окно
+        function closeModal() {
+            document.getElementById('budgetModal').style.display = 'none';
+        }
+
+        // Применить изменения бюджета
+        function applyBudgetChange() {
+            const amount = parseFloat(document.getElementById('budgetChangeAmount').value);
+            const reason = document.getElementById('changeReason').value;
+            if (isNaN(amount) || reason === '') {
+                alert("Введите корректную сумму и причину.");
+                return;
+            }
+
+            if (changeType === 'add') {
+                remainingBudget += amount;
+                expenseHistory.push({ type: 'Добавлено', amount, reason, date: new Date() });
+            } else if (changeType === 'subtract') {
+                if (remainingBudget - amount < 0) {
+                    alert("Недостаточно средств в бюджете.");
+                    return;
+                }
+                remainingBudget -= amount;
+                expenseHistory.push({ type: 'Уменьшено', amount, reason, date: new Date() });
+            }
+
+            document.getElementById('budgetDisplay').textContent = `Ваш бюджет: ${remainingBudget} р.`;
+            closeModal();
         }
 
         // Показать форму для добавления трат
@@ -251,7 +323,7 @@
                 }
                 remainingBudget -= amount;
                 totalExpenses[category] += amount;
-                expenseHistory.push({ category, amount, date: new Date() });
+                expenseHistory.push({ type: 'Трата', category, amount, date: new Date() });
                 document.getElementById('budgetDisplay').textContent = `Ваш бюджет: ${remainingBudget} р.`;
                 alert(`Трата добавлена: ${category}, ${amount} рублей`);
                 updateChart(); // Обновляем диаграмму
@@ -310,22 +382,23 @@
             );
         }
 
-        // Обновление истории трат
+        // Обновление истории изменений и трат
         function updateExpenseHistory(timeFrame) {
             const historyContainer = document.getElementById('expenseHistory');
-            historyContainer.innerHTML = '<h3>История трат:</h3>';
+            historyContainer.innerHTML = '<h3>История изменений:</h3>';
             let filteredHistory = filterExpensesByTimeFrame(timeFrame);
             
             if (filteredHistory.length === 0) {
-                historyContainer.innerHTML += '<p>Не было трат за выбранный период.</p>';
+                historyContainer.innerHTML += '<p>Не было изменений за выбранный период.</p>';
             } else {
                 filteredHistory.forEach(expense => {
-                    historyContainer.innerHTML += `<p>${expense.date.toLocaleString()} - ${expense.category}: ${expense.amount} рублей</p>`;
+                    const reasonText = expense.reason ? ` (Причина: ${expense.reason})` : '';
+                    historyContainer.innerHTML += `<p>${expense.date.toLocaleString()} - ${expense.type}: ${expense.amount} рублей${reasonText}</p>`;
                 });
             }
         }
 
-        // Фильтрация трат по временным периодам
+        // Фильтрация изменений по временным периодам
         function filterExpensesByTimeFrame(timeFrame) {
             const now = new Date();
             return expenseHistory.filter(expense => {
