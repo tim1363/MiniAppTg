@@ -148,6 +148,15 @@
             margin-top: 10px;
         }
 
+        /* Стиль для калькулятора в центре пирога */
+        #calculator {
+            position: absolute;
+            font-size: 2em;
+            color: white;
+            text-align: center;
+            z-index: 2;
+        }
+
     </style>
 </head>
 <body>
@@ -219,6 +228,9 @@
     <!-- Диаграмма для статистики -->
     <canvas id="expenseChart" width="300" height="300" style="display:none;"></canvas>
 
+    <!-- Калькулятор в центре диаграммы -->
+    <div id="calculator" style="display:none;">0 р.</div>
+
     <!-- История изменений -->
     <div class="expense-history" id="expenseHistory" style="display:none;"></div>
 
@@ -253,9 +265,14 @@
                 alert("Введите корректный бюджет.");
                 return;
             }
-            document.getElementById('budgetDisplay').textContent = `Ваш бюджет: ${remainingBudget} р.`;
+            document.getElementById('budgetDisplay').textContent = `Ваш бюджет: ${formatMoney(remainingBudget)} р.`;
             document.getElementById('profileContainer').style.display = 'none';
             document.getElementById('mainMenuContainer').style.display = 'flex';
+        }
+
+        // Форматирование чисел с разделением тысяч
+        function formatMoney(amount) {
+            return amount.toLocaleString('ru-RU');
         }
 
         // Показать модальное окно для изменения бюджета
@@ -291,7 +308,7 @@
                 expenseHistory.push({ type: 'Уменьшено', amount, reason, date: new Date() });
             }
 
-            document.getElementById('budgetDisplay').textContent = `Ваш бюджет: ${remainingBudget} р.`;
+            document.getElementById('budgetDisplay').textContent = `Ваш бюджет: ${formatMoney(remainingBudget)} р.`;
             closeModal();
         }
 
@@ -322,8 +339,8 @@
                 remainingBudget -= amount;
                 totalExpenses[category] += amount;
                 expenseHistory.push({ type: 'Трата', category, amount, date: new Date() });
-                document.getElementById('budgetDisplay').textContent = `Ваш бюджет: ${remainingBudget} р.`;
-                alert(`Трата добавлена: ${category}, ${amount} рублей`);
+                document.getElementById('budgetDisplay').textContent = `Ваш бюджет: ${formatMoney(remainingBudget)} р.`;
+                alert(`Трата добавлена: ${category}, ${formatMoney(amount)} рублей`);
                 updateChart(); // Обновляем диаграмму
             } else {
                 alert("Введите корректную сумму.");
@@ -370,6 +387,16 @@
                 options: {
                     animation: {
                         animateScale: true
+                    },
+                    plugins: {
+                        // Отображаем общие траты в центре пирога
+                        tooltip: {
+                            enabled: true
+                        },
+                        centerText: {
+                            display: true,
+                            text: `Итого: ${formatMoney(total)} р.`
+                        }
                     }
                 }
             };
@@ -378,6 +405,10 @@
                 document.getElementById('expenseChart'),
                 config
             );
+
+            // Показываем общие траты в калькуляторе
+            document.getElementById('calculator').style.display = 'block';
+            document.getElementById('calculator').textContent = `${formatMoney(total)} р.`;
         }
 
         // Обновление истории изменений и трат
@@ -391,7 +422,7 @@
             } else {
                 filteredHistory.forEach(expense => {
                     const reasonText = expense.reason ? ` (Причина: ${expense.reason})` : '';
-                    historyContainer.innerHTML += `<p>${expense.date.toLocaleString()} - ${expense.type}: ${expense.amount} рублей${reasonText}</p>`;
+                    historyContainer.innerHTML += `<p>${expense.date.toLocaleString()} - ${expense.type}: ${formatMoney(expense.amount)} рублей${reasonText}</p>`;
                 });
             }
         }
@@ -424,6 +455,7 @@
             document.getElementById('timeFrameSelect').style.display = 'none';
             document.getElementById('mainMenuContainer').style.display = 'flex';
             document.getElementById('backButton').style.display = 'none';
+            document.getElementById('calculator').style.display = 'none';
         }
     </script>
 </body>
