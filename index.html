@@ -41,7 +41,7 @@
             margin-bottom: 10px;
         }
 
-        .button-container, .profile-container {
+        .button-container, .profile-container, .main-menu-container {
             display: none;
             flex-direction: column;
             align-items: center;
@@ -151,11 +151,7 @@
     </style>
 </head>
 <body>
-    <h1 id="mainText">Траты</h1>
-
-    <!-- Кнопки "+" и "-" в углах экрана -->
-    <div id="plusButton" onclick="openModal('add')">+</div>
-    <div id="minusButton" onclick="openModal('subtract')">−</div>
+    <h1 id="mainText"></h1>
 
     <!-- Модальное окно для добавления или вычитания денег -->
     <div class="modal" id="budgetModal">
@@ -182,19 +178,21 @@
         <button class="button" onclick="submitProfile()">Продолжить</button>
     </div>
 
-    <!-- Контейнер для кнопок -->
-    <div class="button-container" id="buttonContainer">
+    <!-- Главное меню -->
+    <div class="main-menu-container" id="mainMenuContainer">
+        <div id="plusButton" onclick="openModal('add')">+</div>
+        <div id="minusButton" onclick="openModal('subtract')">−</div>
         <div id="budgetDisplay">Ваш бюджет: 0 р.</div>
         <button class="button" onclick="showExpenseForm()">Добавить трату</button>
         <button class="button" onclick="showTimeFrameSelect()">Статистика</button>
     </div>
 
     <!-- Выбор промежутка времени -->
-    <div id="timeFrameSelect">
+    <div id="timeFrameSelect" style="display:none;">
         <h2 style="color: white;">Выберите период:</h2>
-        <button class="time-frame-button" onclick="showStats('сегодня')">Сегодня</button>
-        <button class="time-frame-button" onclick="showStats('вчера')">Вчера</button>
-        <button class="time-frame-button" onclick="showStats('неделя')">Неделя</button>
+        <button class="button" onclick="showStats('сегодня')">Сегодня</button>
+        <button class="button" onclick="showStats('вчера')">Вчера</button>
+        <button class="button" onclick="showStats('неделя')">Неделя</button>
         <br><br>
         <button class="button" onclick="goBack()">Назад</button>
     </div>
@@ -257,7 +255,7 @@
             }
             document.getElementById('budgetDisplay').textContent = `Ваш бюджет: ${remainingBudget} р.`;
             document.getElementById('profileContainer').style.display = 'none';
-            document.getElementById('buttonContainer').style.display = 'flex';
+            document.getElementById('mainMenuContainer').style.display = 'flex';
         }
 
         // Показать модальное окно для изменения бюджета
@@ -302,14 +300,14 @@
             document.getElementById('expenseForm').style.display = 'block';
             document.getElementById('expenseChart').style.display = 'none';
             document.getElementById('expenseHistory').style.display = 'none';
-            document.getElementById('buttonContainer').style.display = 'none';
+            document.getElementById('mainMenuContainer').style.display = 'none';
             document.getElementById('backButton').style.display = 'none';
         }
 
         // Показать выбор промежутка времени
         function showTimeFrameSelect() {
             document.getElementById('timeFrameSelect').style.display = 'block';
-            document.getElementById('buttonContainer').style.display = 'none';
+            document.getElementById('mainMenuContainer').style.display = 'none';
         }
 
         // Добавление траты
@@ -337,7 +335,7 @@
             document.getElementById('timeFrameSelect').style.display = 'none';
             document.getElementById('expenseForm').style.display = 'none';
             document.getElementById('expenseChart').style.display = 'block';
-            document.getElementById('buttonContainer').style.display = 'none';
+            document.getElementById('mainMenuContainer').style.display = 'none';
             document.getElementById('backButton').style.display = 'block';
             document.getElementById('expenseHistory').style.display = 'block';
 
@@ -424,7 +422,7 @@
             document.getElementById('expenseChart').style.display = 'none';
             document.getElementById('expenseHistory').style.display = 'none';
             document.getElementById('timeFrameSelect').style.display = 'none';
-            document.getElementById('buttonContainer').style.display = 'flex';
+            document.getElementById('mainMenuContainer').style.display = 'flex';
             document.getElementById('backButton').style.display = 'none';
         }
     </script>
