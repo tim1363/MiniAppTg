@@ -80,6 +80,28 @@
             text-align: center;
             font-size: 1.2em;
         }
+
+        /* Стили для выбора промежутка времени */
+        #timeFrameSelect {
+            display: none;
+            text-align: center;
+        }
+
+        .time-frame-button {
+            padding: 10px 20px;
+            margin: 10px;
+            border: 2px solid white;
+            background-color: transparent;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .time-frame-button:hover {
+            background-color: white;
+            color: black;
+        }
     </style>
 </head>
 <body>
@@ -88,7 +110,17 @@
     <!-- Контейнер для кнопок -->
     <div class="button-container" id="buttonContainer">
         <button class="button" onclick="showExpenseForm()">Добавить трату</button>
-        <button class="button" onclick="showStats()">Статистика</button>
+        <button class="button" onclick="showTimeFrameSelect()">Статистика</button>
+    </div>
+
+    <!-- Выбор промежутка времени -->
+    <div id="timeFrameSelect">
+        <h2>Выберите период:</h2>
+        <button class="time-frame-button" onclick="showStats('сегодня')">Сегодня</button>
+        <button class="time-frame-button" onclick="showStats('вчера')">Вчера</button>
+        <button class="time-frame-button" onclick="showStats('неделя')">Неделя</button>
+        <br><br>
+        <button class="button" onclick="goBack()">Назад</button>
     </div>
 
     <!-- Форма для добавления трат -->
@@ -141,6 +173,12 @@
             document.getElementById('backButton').style.display = 'none';
         }
 
+        // Показать выбор промежутка времени
+        function showTimeFrameSelect() {
+            document.getElementById('timeFrameSelect').style.display = 'block';
+            document.getElementById('buttonContainer').style.display = 'none';
+        }
+
         // Добавление траты
         function addExpense() {
             const category = document.getElementById('category').value;
@@ -156,12 +194,15 @@
         }
 
         // Показать статистику
-        function showStats() {
+        function showStats(timeFrame) {
+            document.getElementById('timeFrameSelect').style.display = 'none';
             document.getElementById('expenseForm').style.display = 'none';
             document.getElementById('expenseChart').style.display = 'block';
             document.getElementById('buttonContainer').style.display = 'none';
             document.getElementById('backButton').style.display = 'block';
             document.getElementById('expenseHistory').style.display = 'block';
+
+            alert(`Отображаем статистику за период: ${timeFrame}`);
 
             updateChart(); // Обновляем диаграмму
             updateExpenseHistory(); // Обновляем историю
@@ -218,6 +259,7 @@
             document.getElementById('expenseForm').style.display = 'none';
             document.getElementById('expenseChart').style.display = 'none';
             document.getElementById('expenseHistory').style.display = 'none';
+            document.getElementById('timeFrameSelect').style.display = 'none';
             document.getElementById('buttonContainer').style.display = 'flex';
             document.getElementById('backButton').style.display = 'none';
         }
