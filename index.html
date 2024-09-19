@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>By KoTim</title>
     <style>
+        /* Установка фона с плавной анимацией градиента */
         body {
             margin: 0;
             height: 100vh;
@@ -12,50 +13,37 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background-color: black;
+            background: linear-gradient(135deg, #FFC0CB, #FFB6C1, #FF69B4, #FF1493, #C71585, #DB7093);
+            background-size: 400% 400%;
+            animation: gradientAnimation 4s ease infinite;
             font-family: Arial, sans-serif;
-            transition: background 1s ease-in-out, color 1s ease-in-out;
+            transition: background 0.5s ease-in-out, color 0.5s ease-in-out;
         }
 
-        /* Анимация для начального экрана */
-        #mmmText {
-            font-size: 5em;
+        /* Анимация переливания градиента */
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Центрирование текста */
+        h1 {
             color: white;
-            font-weight: bold;
+            font-size: 3.5em;
+            text-align: center;
+            margin-bottom: 10px;
             opacity: 0;
-            transform: scale(0);
-            transition: opacity 1s ease, transform 1s ease;
+            animation: fadeIn 2s forwards 1s;
         }
 
-        #fullText {
-            font-size: 3em;
-            color: white;
-            opacity: 0;
-            font-weight: normal;
-            transition: opacity 1s ease;
+        /* Плавное появление текста */
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
         }
 
-        /* Стиль для выделения буквы M */
-        .highlight {
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-
-        /* Стиль для текста by KoTim */
-        #byText {
-            font-size: 1.2em;
-            color: white;
-            opacity: 0;
-            transition: opacity 1s ease;
-        }
-
-        #animation-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* Центрирование текста и кнопок */
+        /* Появление главного меню после 4 секунд */
         .button-container, .profile-container, .main-menu-container {
             display: none;
             flex-direction: column;
@@ -103,13 +91,8 @@
             cursor: pointer;
         }
 
-        #plusButton {
-            right: 20px;
-        }
-
-        #minusButton {
-            left: 20px;
-        }
+        #plusButton { right: 20px; }
+        #minusButton { left: 20px; }
 
         /* Стили модальных окон */
         .modal {
@@ -164,16 +147,20 @@
     </style>
 </head>
 <body>
+    <h1 id="mainText">Управление бюджетом</h1>
 
-    <!-- Контейнер для анимации -->
-    <div id="animation-container">
-        <h1 id="mmmText">MMM</h1>
-        <h2 id="fullText">
-            <span class="highlight">M</span>y 
-            <span class="highlight">M</span>oney 
-            <span class="highlight">M</span>anager
-        </h2>
-        <h3 id="byText">by KoTim</h3>
+    <!-- Модальное окно для добавления или вычитания денег -->
+    <div class="modal" id="budgetModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Изменение бюджета</h2>
+            <input class="input-field" type="number" id="budgetChangeAmount" placeholder="Введите сумму">
+            <br><br>
+            <label for="reason">Причина изменения:</label>
+            <input class="input-field" type="text" id="changeReason" placeholder="Причина">
+            <br><br>
+            <button class="button" onclick="applyBudgetChange()">Применить</button>
+            <button class="button" onclick="closeModal()">Отмена</button>
+        </div>
     </div>
 
     <!-- Контейнер для заполнения профиля -->
@@ -193,21 +180,7 @@
         <div id="minusButton" onclick="openModal('subtract')">−</div>
         <div id="budgetDisplay">Ваш бюджет: 0 р.</div>
         <button class="button" onclick="showExpenseForm()">Добавить трату</button>
-        <button class="button" id="statsButton" onclick="showTimeFrameSelect()">Статистика</button>
-    </div>
-
-    <!-- Модальное окно для добавления или вычитания денег -->
-    <div class="modal" id="budgetModal">
-        <div class="modal-content">
-            <h2 id="modalTitle">Изменение бюджета</h2>
-            <input class="input-field" type="number" id="budgetChangeAmount" placeholder="Введите сумму">
-            <br><br>
-            <label for="reason">Причина изменения:</label>
-            <input class="input-field" type="text" id="changeReason" placeholder="Причина">
-            <br><br>
-            <button class="button" onclick="applyBudgetChange()">Применить</button>
-            <button class="button" onclick="closeModal()">Отмена</button>
-        </div>
+        <button class="button" onclick="showTimeFrameSelect()">Статистика</button>
     </div>
 
     <!-- Выбор промежутка времени -->
@@ -252,24 +225,17 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Анимация при загрузке
-        setTimeout(() => {
-            document.getElementById('mmmText').style.opacity = 1;
-            document.getElementById('mmmText').style.transform = 'scale(1)';
-        }, 500);
+        let totalExpenses = { магазины: 0, развлечения: 0, еда: 0, транспорт: 0 };
+        let expenseHistory = [];
+        let budget = 0;
+        let remainingBudget = 0;
+        let chart = null;
+        let changeType = '';
 
+        // После 4 секунд показываем экран профиля
         setTimeout(() => {
-            document.getElementById('fullText').style.opacity = 1;
-        }, 2000);
-
-        setTimeout(() => {
-            document.getElementById('byText').style.opacity = 1;
-        }, 3000);
-
-        setTimeout(() => {
-            document.getElementById('animation-container').style.display = 'none';
             document.getElementById('profileContainer').style.display = 'flex';
-        }, 5000);
+        }, 4000);
 
         // Установка профиля без заработка
         function setNoIncome() {
@@ -279,28 +245,30 @@
         // Подтверждение профиля
         function submitProfile() {
             const salary = parseFloat(document.getElementById('salary').value);
-            const budget = parseFloat(document.getElementById('budget').value);
+            budget = parseFloat(document.getElementById('budget').value);
+            remainingBudget = budget;
             if (isNaN(budget)) {
                 alert("Введите корректный бюджет.");
                 return;
             }
-            document.getElementById('budgetDisplay').textContent = `Ваш бюджет: ${formatMoney(budget)} р.`;
+            document.getElementById('budgetDisplay').textContent = `Ваш бюджет: ${formatMoney(remainingBudget)} р.`;
             document.getElementById('profileContainer').style.display = 'none';
             document.getElementById('mainMenuContainer').style.display = 'flex';
         }
 
-        // Форматирование чисел
+        // Форматирование чисел с разделением тысяч
         function formatMoney(amount) {
             return amount.toLocaleString('ru-RU');
         }
 
-        // Модальное окно для изменения бюджета
+        // Показать модальное окно для изменения бюджета
         function openModal(type) {
+            changeType = type;
             document.getElementById('modalTitle').textContent = type === 'add' ? 'Добавить в бюджет' : 'Уменьшить бюджет';
             document.getElementById('budgetModal').style.display = 'flex';
         }
 
-        // Закрытие модального окна
+        // Закрыть модальное окно
         function closeModal() {
             document.getElementById('budgetModal').style.display = 'none';
         }
@@ -314,28 +282,55 @@
                 return;
             }
 
-            let remainingBudget = parseFloat(document.getElementById('budgetDisplay').textContent.replace(/\D/g, ''));
             if (changeType === 'add') {
                 remainingBudget += amount;
-            } else {
+                expenseHistory.push({ type: 'Добавлено', amount, reason, date: new Date() });
+            } else if (changeType === 'subtract') {
                 if (remainingBudget - amount < 0) {
                     alert("Недостаточно средств.");
                     return;
                 }
                 remainingBudget -= amount;
+                expenseHistory.push({ type: 'Уменьшено', amount, reason, date: new Date() });
             }
 
             document.getElementById('budgetDisplay').textContent = `Ваш бюджет: ${formatMoney(remainingBudget)} р.`;
             closeModal();
         }
 
-        // Показать форму добавления трат
+        // Показать форму для добавления трат
         function showExpenseForm() {
             document.getElementById('expenseForm').style.display = 'block';
             document.getElementById('expenseChart').style.display = 'none';
             document.getElementById('expenseHistory').style.display = 'none';
             document.getElementById('mainMenuContainer').style.display = 'none';
             document.getElementById('backButton').style.display = 'none';
+        }
+
+        // Показать выбор промежутка времени
+        function showTimeFrameSelect() {
+            document.getElementById('timeFrameSelect').style.display = 'block';
+            document.getElementById('mainMenuContainer').style.display = 'none';
+        }
+
+        // Добавление траты
+        function addExpense() {
+            const category = document.getElementById('category').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            if (amount > 0) {
+                if (remainingBudget - amount < 0) {
+                    alert("Недостаточно средств.");
+                    return;
+                }
+                remainingBudget -= amount;
+                totalExpenses[category] += amount;
+                expenseHistory.push({ type: 'Трата', category, amount, date: new Date() });
+                document.getElementById('budgetDisplay').textContent = `Ваш бюджет: ${formatMoney(remainingBudget)} р.`;
+                alert(`Трата добавлена: ${category}, ${formatMoney(amount)} рублей`);
+                updateChart();
+            } else {
+                alert("Введите корректную сумму.");
+            }
         }
 
         // Показать статистику
@@ -376,27 +371,18 @@
                 type: 'doughnut',
                 data: data,
                 options: {
-                    animation: {
-                        animateScale: true
-                    },
-                    plugins: {
-                        tooltip: {
-                            enabled: true
-                        },
-                        centerText: {
-                            display: true,
-                            text: `Итого: ${formatMoney(total)} р.`
-                        }
-                    }
+                    animation: { animateScale: true },
+                    plugins: { tooltip: { enabled: true } }
                 }
             };
 
             chart = new Chart(document.getElementById('expenseChart'), config);
+
             document.getElementById('calculator').style.display = 'block';
             document.getElementById('calculator').textContent = `${formatMoney(total)} р.`;
         }
 
-        // Обновление истории трат
+        // Обновление истории изменений и трат
         function updateExpenseHistory(timeFrame) {
             const historyContainer = document.getElementById('expenseHistory');
             historyContainer.innerHTML = '<h3>История изменений:</h3>';
@@ -406,11 +392,13 @@
                 historyContainer.innerHTML += '<p>Не было изменений за выбранный период.</p>';
             } else {
                 filteredHistory.forEach(expense => {
-                    historyContainer.innerHTML += `<p>${expense.date.toLocaleString()} - ${expense.type}: ${formatMoney(expense.amount)} рублей</p>`;
+                    const reasonText = expense.reason ? ` (Причина: ${expense.reason})` : '';
+                    historyContainer.innerHTML += `<p>${expense.date.toLocaleString()} - ${expense.type}: ${formatMoney(expense.amount)} рублей${reasonText}</p>`;
                 });
             }
         }
 
+        // Фильтрация изменений по временным периодам
         function filterExpensesByTimeFrame(timeFrame) {
             const now = new Date();
             return expenseHistory.filter(expense => {
