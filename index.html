@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>By KoTim</title>
     <style>
+        /* Установка черного фона */
         body {
             margin: 0;
             height: 100vh;
@@ -17,22 +19,47 @@
             transition: background 1s ease-in-out, color 1s ease-in-out;
         }
 
-        /* Центрирование текста для анимации */
-        h1, h2 {
+        /* Анимация для аббревиатуры и расшифровки */
+        h1, h2, h3 {
             color: white;
-            font-size: 3em;
+            font-size: 3.5em;
             text-align: center;
             margin: 0;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
         }
 
-        .animation-container {
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+        h1 {
+            font-size: 5em;
+            animation: fadeIn 1s forwards 0.5s;
         }
 
-        .button-container, .profile-container, .main-menu-container {
+        h2 {
+            font-size: 3em;
+            margin-top: 10px;
+            animation: fadeIn 1s forwards 1.5s;
+        }
+
+        h3 {
+            font-size: 1.2em;
+            margin-top: 10px;
+            animation: fadeIn 1s forwards 2.5s;
+        }
+
+        /* Плавное появление текста */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .button-container,
+        .profile-container,
+        .main-menu-container {
             display: none;
             flex-direction: column;
             align-items: center;
@@ -69,8 +96,8 @@
             text-align: center;
         }
 
-        /* Позиционирование кнопок "+" и "-" в верхних углах */
-        #plusButton, #minusButton {
+        #plusButton,
+        #minusButton {
             position: absolute;
             top: 10px;
             font-size: 2em;
@@ -87,7 +114,6 @@
             left: 20px;
         }
 
-        /* Стили модальных окон */
         .modal {
             display: none;
             position: fixed;
@@ -109,7 +135,6 @@
             color: white;
         }
 
-        /* Стиль для бюджета */
         #budgetDisplay {
             font-size: 2em;
             color: white;
@@ -117,7 +142,6 @@
             margin-top: 20px;
         }
 
-        /* Стиль для истории изменений */
         .expense-history {
             margin-top: 10px;
             color: white;
@@ -129,7 +153,6 @@
             margin-top: 10px;
         }
 
-        /* Стиль для калькулятора в центре пирога */
         #calculator {
             position: absolute;
             font-size: 2em;
@@ -137,20 +160,14 @@
             text-align: center;
             z-index: 2;
         }
-
-        /* Скрываем анимацию по умолчанию */
-        .hidden {
-            display: none;
-        }
     </style>
 </head>
-<body>
-    <div class="animation-container" id="animationContainer">
-        <h1 id="abbreviation" class="txt-rotate" data-rotate='["MMM"]' data-period="1000"></h1>
-        <h2 id="fullText">My Money Manager</h2>
-    </div>
 
-    <h1 id="mainText" class="hidden">Управление бюджетом</h1>
+<body>
+    <!-- Анимация для аббревиатуры и расшифровки -->
+    <h1 id="mmmText">MMM</h1>
+    <h2 id="fullText">My Money Manager</h2>
+    <h3 id="byText">by KoTim</h3>
 
     <!-- Модальное окно для добавления или вычитания денег -->
     <div class="modal" id="budgetModal">
@@ -186,16 +203,6 @@
         <button class="button" onclick="showTimeFrameSelect()">Статистика</button>
     </div>
 
-    <!-- Выбор промежутка времени -->
-    <div id="timeFrameSelect" style="display:none;">
-        <h2 style="color: white;">Выберите период:</h2>
-        <button class="button" onclick="showStats('сегодня')">Сегодня</button>
-        <button class="button" onclick="showStats('вчера')">Вчера</button>
-        <button class="button" onclick="showStats('неделя')">Неделя</button>
-        <br><br>
-        <button class="button" onclick="goBack()">Назад</button>
-    </div>
-
     <!-- Форма для добавления трат -->
     <div id="expenseForm" style="display:none; text-align: center;">
         <h2 style="color: white;">Добавить трату</h2>
@@ -229,71 +236,19 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         let totalExpenses = { магазины: 0, развлечения: 0, еда: 0, транспорт: 0 };
-        let expenseHistory = [];
+        let expenseHistory = []; 
         let budget = 0;
         let remainingBudget = 0;
-        let chart = null;
-        let changeType = '';
+        let chart = null; 
+        let changeType = ''; 
 
-        // После 4 секунд показываем экран профиля
+        // После 4 секунд скрываем аббревиатуру и показываем экран профиля
         setTimeout(() => {
-            document.getElementById('animationContainer').style.display = 'none';
-            document.getElementById('mainText').classList.remove('hidden');
+            document.getElementById('mmmText').style.display = 'none';
+            document.getElementById('fullText').style.display = 'none';
+            document.getElementById('byText').style.display = 'none';
             document.getElementById('profileContainer').style.display = 'flex';
         }, 4000);
-
-        // Анимация текста (обновленная)
-        window.onload = function() {
-            var elements = document.getElementsByClassName('txt-rotate');
-            for (var i = 0; i < elements.length; i++) {
-                var toRotate = elements[i].getAttribute('data-rotate');
-                var period = elements[i].getAttribute('data-period');
-                if (toRotate) {
-                    new TxtRotate(elements[i], JSON.parse(toRotate), period);
-                }
-            }
-        };
-
-        function TxtRotate(el, toRotate, period) {
-            this.toRotate = toRotate;
-            this.el = el;
-            this.loopNum = 0;
-            this.period = parseInt(period, 10) || 2000;
-            this.txt = '';
-            this.tick();
-            this.isDeleting = false;
-        }
-
-        TxtRotate.prototype.tick = function() {
-            var i = this.loopNum % this.toRotate.length;
-            var fullTxt = this.toRotate[i];
-
-            if (this.isDeleting) {
-                this.txt = fullTxt.substring(0, this.txt.length - 1);
-            } else {
-                this.txt = fullTxt.substring(0, this.txt.length + 1);
-            }
-
-            this.el.innerHTML = '<span class="wrap">'+this.txt+'</span>';
-
-            var that = this;
-            var delta = 300 - Math.random() * 100;
-
-            if (this.isDeleting) { delta /= 2; }
-
-            if (!this.isDeleting && this.txt === fullTxt) {
-                delta = this.period;
-                this.isDeleting = true;
-            } else if (this.isDeleting && this.txt === '') {
-                this.isDeleting = false;
-                this.loopNum++;
-                delta = 500;
-            }
-
-            setTimeout(function() {
-                that.tick();
-            }, delta);
-        };
 
         // Установка профиля без заработка
         function setNoIncome() {
@@ -385,6 +340,7 @@
                 expenseHistory.push({ type: 'Трата', category, amount, date: new Date() });
                 document.getElementById('budgetDisplay').textContent = `Ваш бюджет: ${formatMoney(remainingBudget)} р.`;
                 alert(`Трата добавлена: ${category}, ${formatMoney(amount)} рублей`);
+                updateChart();
             } else {
                 alert("Введите корректную сумму.");
             }
@@ -487,4 +443,5 @@
         }
     </script>
 </body>
+
 </html>
