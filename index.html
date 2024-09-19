@@ -94,17 +94,22 @@
             <option value="транспорт">Транспорт</option>
         </select>
         <br><br>
-        <label for="amount">Сумма:</label>
+        <label for="amount">Сумма (рубли):</label>
         <input type="number" id="amount" placeholder="Введите сумму">
         <br><br>
         <button class="button" onclick="addExpense()">Добавить</button>
+        <br><br>
+        <button class="button" onclick="goBack()">Назад</button>
     </div>
 
     <!-- Диаграмма для статистики -->
-    <canvas id="expenseChart" width="400" height="400" style="display:none; margin-top: 20px;"></canvas>
+    <canvas id="expenseChart" width="300" height="300" style="display:none; margin-top: 20px;"></canvas>
+    <button class="button" id="backButton" style="display:none;" onclick="goBack()">Назад</button>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        let totalExpenses = { магазины: 0, развлечения: 0, еда: 0, транспорт: 0 }; // Начальные траты
+
         // Через 10 секунд сменяем фон на черный и изменяем текст на "Главное меню"
         setTimeout(() => {
             document.body.classList.add('black-bg');
@@ -117,39 +122,67 @@
         function showExpenseForm() {
             document.getElementById('expenseForm').style.display = 'block';
             document.getElementById('expenseChart').style.display = 'none';
+            document.getElementById('buttonContainer').style.display = 'none';
+            document.getElementById('backButton').style.display = 'none';
         }
 
         // Добавление траты
         function addExpense() {
             const category = document.getElementById('category').value;
-            const amount = document.getElementById('amount').value;
-            alert(`Трата добавлена: ${category}, ${amount} рублей`);
-            // Здесь можно добавить логику для сохранения данных
+            const amount = parseFloat(document.getElementById('amount').value);
+            if (amount > 0) {
+                totalExpenses[category] += amount;
+                alert(`Трата добавлена: ${category}, ${amount} рублей`);
+            } else {
+                alert("Введите корректную сумму.");
+            }
         }
 
         // Показать статистику
         function showStats() {
             document.getElementById('expenseForm').style.display = 'none';
             document.getElementById('expenseChart').style.display = 'block';
+            document.getElementById('buttonContainer').style.display = 'none';
+            document.getElementById('backButton').style.display = 'block';
+
+            // Если нет трат, круг остается черным
+            let total = Object.values(totalExpenses).reduce((sum, value) => sum + value, 0);
+            let dataValues = total > 0 ? Object.values(totalExpenses) : [1]; // Черный круг, если нет трат
+            let backgroundColors = total > 0
+                ? ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
+                : ['#000000']; // Черный круг, если нет трат
 
             const data = {
-                labels: ['Магазины', 'Развлечения', 'Еда', 'Транспорт'],
+                labels: total > 0 ? ['Магазины', 'Развлечения', 'Еда', 'Транспорт'] : ['Нет данных'],
                 datasets: [{
-                    label: 'Расходы',
-                    data: [40, 20, 25, 15], // Данные для диаграммы
-                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
+                    label: 'Расходы (рубли)',
+                    data: dataValues, // Используем реальные траты, если есть
+                    backgroundColor: backgroundColors
                 }]
             };
 
             const config = {
                 type: 'doughnut',
                 data: data,
+                options: {
+                    animation: {
+                        animateScale: true
+                    }
+                }
             };
 
             new Chart(
                 document.getElementById('expenseChart'),
                 config
             );
+        }
+
+        // Кнопка "Назад"
+        function goBack() {
+            document.getElementById('expenseForm').style.display = 'none';
+            document.getElementById('expenseChart').style.display = 'none';
+            document.getElementById('buttonContainer').style.display = 'flex';
+            document.getElementById('backButton').style.display = 'none';
         }
     </script>
 </body>
