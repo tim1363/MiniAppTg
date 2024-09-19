@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>By KoTim</title>
     <style>
-        /* Установка фона с плавной анимацией градиента */
+        /* Установка черного фона */
         body {
             margin: 0;
             height: 100vh;
@@ -13,18 +13,9 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #FFC0CB, #FFB6C1, #FF69B4, #FF1493, #C71585, #DB7093);
-            background-size: 400% 400%;
-            animation: gradientAnimation 4s ease infinite;
+            background-color: black;
             font-family: Arial, sans-serif;
             transition: background 0.5s ease-in-out, color 0.5s ease-in-out;
-        }
-
-        /* Анимация переливания градиента */
-        @keyframes gradientAnimation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
         }
 
         /* Центрирование текста */
@@ -41,6 +32,14 @@
         @keyframes fadeIn {
             0% { opacity: 0; }
             100% { opacity: 1; }
+        }
+
+        /* Стиль текста анимации расшифровки */
+        .txt-rotate {
+            font-size: 3em;
+            color: white;
+            text-align: center;
+            margin-top: 20px;
         }
 
         /* Появление главного меню после 4 секунд */
@@ -147,7 +146,9 @@
     </style>
 </head>
 <body>
-    <h1 id="mainText">Управление бюджетом</h1>
+
+    <h1 id="mainText">MMM</h1>
+    <div class="txt-rotate" data-rotate='["My Money Manager"]' data-period="2000"></div>
 
     <!-- Модальное окно для добавления или вычитания денег -->
     <div class="modal" id="budgetModal">
@@ -428,6 +429,59 @@
             document.getElementById('backButton').style.display = 'none';
             document.getElementById('calculator').style.display = 'none';
         }
+
+        // Скрипт для анимации расшифровки
+        var TxtRotate = function(el, toRotate, period) {
+            this.toRotate = toRotate;
+            this.el = el;
+            this.loopNum = 0;
+            this.period = parseInt(period, 10) || 2000;
+            this.txt = '';
+            this.tick();
+            this.isDeleting = false;
+        };
+
+        TxtRotate.prototype.tick = function() {
+            var i = this.loopNum % this.toRotate.length;
+            var fullTxt = this.toRotate[i];
+
+            if (this.isDeleting) {
+                this.txt = fullTxt.substring(0, this.txt.length - 1);
+            } else {
+                this.txt = fullTxt.substring(0, this.txt.length + 1);
+            }
+
+            this.el.innerHTML = '<span class="wrap">' + this.txt + '</span>';
+
+            var that = this;
+            var delta = 300 - Math.random() * 100;
+
+            if (this.isDeleting) { delta /= 2; }
+
+            if (!this.isDeleting && this.txt === fullTxt) {
+                delta = this.period;
+                this.isDeleting = true;
+            } else if (this.isDeleting && this.txt === '') {
+                this.isDeleting = false;
+                this.loopNum++;
+                delta = 500;
+            }
+
+            setTimeout(function() {
+                that.tick();
+            }, delta);
+        };
+
+        window.onload = function() {
+            var elements = document.getElementsByClassName('txt-rotate');
+            for (var i = 0; i < elements.length; i++) {
+                var toRotate = elements[i].getAttribute('data-rotate');
+                var period = elements[i].getAttribute('data-period');
+                if (toRotate) {
+                    new TxtRotate(elements[i], JSON.parse(toRotate), period);
+                }
+            }
+        };
     </script>
 </body>
 </html>
