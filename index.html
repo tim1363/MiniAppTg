@@ -20,9 +20,14 @@
         }
 
         /* Анимация для аббревиатуры и расшифровки */
+        #animation-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
         h1, h2, h3 {
             color: white;
-            font-size: 3.5em;
             text-align: center;
             margin: 0;
             opacity: 0;
@@ -165,9 +170,11 @@
 
 <body>
     <!-- Анимация для аббревиатуры и расшифровки -->
-    <h1 id="mmmText">MMM</h1>
-    <h2 id="fullText">My Money Manager</h2>
-    <h3 id="byText">by KoTim</h3>
+    <div id="animation-container">
+        <h1 id="mmmText">MMM</h1>
+        <h2 id="fullText">My Money Manager</h2>
+        <h3 id="byText">by KoTim</h3>
+    </div>
 
     <!-- Модальное окно для добавления или вычитания денег -->
     <div class="modal" id="budgetModal">
@@ -236,17 +243,15 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         let totalExpenses = { магазины: 0, развлечения: 0, еда: 0, транспорт: 0 };
-        let expenseHistory = []; 
+        let expenseHistory = [];
         let budget = 0;
         let remainingBudget = 0;
-        let chart = null; 
-        let changeType = ''; 
+        let chart = null;
+        let changeType = '';
 
         // После 4 секунд скрываем аббревиатуру и показываем экран профиля
         setTimeout(() => {
-            document.getElementById('mmmText').style.display = 'none';
-            document.getElementById('fullText').style.display = 'none';
-            document.getElementById('byText').style.display = 'none';
+            document.getElementById('animation-container').style.display = 'none';
             document.getElementById('profileContainer').style.display = 'flex';
         }, 4000);
 
@@ -340,7 +345,6 @@
                 expenseHistory.push({ type: 'Трата', category, amount, date: new Date() });
                 document.getElementById('budgetDisplay').textContent = `Ваш бюджет: ${formatMoney(remainingBudget)} р.`;
                 alert(`Трата добавлена: ${category}, ${formatMoney(amount)} рублей`);
-                updateChart();
             } else {
                 alert("Введите корректную сумму.");
             }
