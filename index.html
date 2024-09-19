@@ -15,7 +15,7 @@
             align-items: center;
             background: linear-gradient(45deg, #FFC0CB, #FFB6C1, #FF69B4, #FF1493, #C71585, #DB7093);
             background-size: 400% 400%;
-            animation: gradientAnimation 5s ease infinite;
+            animation: gradientAnimation 3s ease infinite; /* Переливание на 3 секунды */
             font-family: Arial, sans-serif;
             transition: background 1s ease-in-out, color 1s ease-in-out;
         }
@@ -162,11 +162,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        let totalExpenses = { магазины: 0, развлечения: 0, еда: 0, транспорт: 0 }; // Начальные траты
+        // Временно храним данные в массиве (на время сессии)
+        let totalExpenses = { магазины: 0, развлечения: 0, еда: 0, транспорт: 0 };
         let expenseHistory = []; // История трат
         let chart = null; // Объект диаграммы
 
-        // Через 10 секунд сменяем фон на черный и изменяем текст
+        // Через 10 секунд сменяем фон на черный и показываем кнопки
         setTimeout(() => {
             document.body.classList.add('black-bg');
             document.getElementById('buttonContainer').style.display = 'flex';
@@ -193,7 +194,7 @@
             const amount = parseFloat(document.getElementById('amount').value);
             if (amount > 0) {
                 totalExpenses[category] += amount;
-                expenseHistory.push({ category, amount, date: new Date().toLocaleString() });
+                expenseHistory.push({ category, amount, date: new Date() });
                 alert(`Трата добавлена: ${category}, ${amount} рублей`);
                 updateChart(); // Обновляем диаграмму
             } else {
@@ -210,7 +211,6 @@
             document.getElementById('backButton').style.display = 'block';
             document.getElementById('expenseHistory').style.display = 'block';
 
-            alert(`Отображаем статистику за период: ${timeFrame}`);
             updateChart(); // Обновляем диаграмму
             updateExpenseHistory(timeFrame); // Обновляем историю
         }
@@ -227,7 +227,7 @@
                 labels: total > 0 ? ['Магазины', 'Развлечения', 'Еда', 'Транспорт'] : ['Нет данных'],
                 datasets: [{
                     label: 'Расходы (рубли)',
-                    data: dataValues, // Используем реальные траты, если есть
+                    data: dataValues,
                     backgroundColor: backgroundColors
                 }]
             };
@@ -262,7 +262,7 @@
                 historyContainer.innerHTML += '<p>Не было трат за выбранный период.</p>';
             } else {
                 filteredHistory.forEach(expense => {
-                    historyContainer.innerHTML += `<p>${expense.date} - ${expense.category}: ${expense.amount} рублей</p>`;
+                    historyContainer.innerHTML += `<p>${expense.date.toLocaleString()} - ${expense.category}: ${expense.amount} рублей</p>`;
                 });
             }
         }
@@ -281,7 +281,7 @@
                 } else if (timeFrame === 'неделя') {
                     const oneWeekAgo = new Date(now);
                     oneWeekAgo.setDate(now.getDate() - 7);
-                    return expenseDate >= oneWeekAgo;
+                    return expenseDate >= oneWeekAgo && expenseDate <= now;
                 }
                 return false;
             });
