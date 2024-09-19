@@ -41,7 +41,7 @@
             margin-bottom: 10px;
         }
 
-        .button-container {
+        .button-container, .profile-container {
             display: none;
             flex-direction: column;
             align-items: center;
@@ -66,7 +66,19 @@
             color: black;
         }
 
-        /* После 10 секунд фон станет черным */
+        .input-field {
+            padding: 10px;
+            margin: 10px;
+            border: 2px solid white;
+            background-color: transparent;
+            color: white;
+            font-size: 1.2em;
+            width: 80%;
+            max-width: 300px;
+            text-align: center;
+        }
+
+        /* После 3 секунд фон станет черным */
         body.black-bg {
             background-color: black;
             background-image: none;
@@ -74,6 +86,14 @@
 
         h1.black-bg {
             color: white;
+        }
+
+        /* Стиль для бюджета */
+        #budgetDisplay {
+            font-size: 2em;
+            color: white;
+            text-align: center;
+            margin-top: 20px;
         }
 
         /* Стиль для истории трат */
@@ -117,8 +137,20 @@
 <body>
     <h1 id="mainText">Траты</h1>
 
+    <!-- Контейнер для заполнения профиля -->
+    <div class="profile-container" id="profileContainer">
+        <h2 style="color: white;">Заполните профиль</h2>
+        <label for="salary" style="color: white;">Укажите заработок (или выберите 'нет заработка'):</label>
+        <input class="input-field" type="number" id="salary" placeholder="Введите заработок">
+        <button class="button" onclick="setNoIncome()">Нет заработка</button>
+        <label for="budget" style="color: white;">Введите ваш бюджет:</label>
+        <input class="input-field" type="number" id="budget" placeholder="Введите бюджет">
+        <button class="button" onclick="submitProfile()">Продолжить</button>
+    </div>
+
     <!-- Контейнер для кнопок -->
     <div class="button-container" id="buttonContainer">
+        <div id="budgetDisplay">Ваш бюджет: 0 р.</div>
         <button class="button" onclick="showExpenseForm()">Добавить трату</button>
         <button class="button" onclick="showTimeFrameSelect()">Статистика</button>
     </div>
@@ -162,16 +194,36 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Временно храним данные в массиве (на время сессии)
         let totalExpenses = { магазины: 0, развлечения: 0, еда: 0, транспорт: 0 };
         let expenseHistory = []; // История трат
+        let budget = 0; // Бюджет пользователя
+        let remainingBudget = 0; // Оставшиеся деньги
         let chart = null; // Объект диаграммы
 
-        // Через 10 секунд сменяем фон на черный и показываем кнопки
+        // Через 3 секунды показываем экран профиля
         setTimeout(() => {
             document.body.classList.add('black-bg');
+            document.getElementById('profileContainer').style.display = 'flex';
+        }, 3000);
+
+        // Установка профиля без заработка
+        function setNoIncome() {
+            document.getElementById('salary').value = 0;
+        }
+
+        // Подтверждение профиля
+        function submitProfile() {
+            const salary = parseFloat(document.getElementById('salary').value);
+            budget = parseFloat(document.getElementById('budget').value);
+            remainingBudget = budget;
+            if (isNaN(budget)) {
+                alert("Введите корректный бюджет.");
+                return;
+            }
+            document.getElementById('budgetDisplay').textContent = `Ваш бюджет: ${remainingBudget} р.`;
+            document.getElementById('profileContainer').style.display = 'none';
             document.getElementById('buttonContainer').style.display = 'flex';
-        }, 10000);
+        }
 
         // Показать форму для добавления трат
         function showExpenseForm() {
@@ -193,8 +245,14 @@
             const category = document.getElementById('category').value;
             const amount = parseFloat(document.getElementById('amount').value);
             if (amount > 0) {
+                if (remainingBudget - amount < 0) {
+                    alert("Недостаточно средств в бюджете.");
+                    return;
+                }
+                remainingBudget -= amount;
                 totalExpenses[category] += amount;
                 expenseHistory.push({ category, amount, date: new Date() });
+                document.getElementById('budgetDisplay').textContent = `Ваш бюджет: ${remainingBudget} р.`;
                 alert(`Трата добавлена: ${category}, ${amount} рублей`);
                 updateChart(); // Обновляем диаграмму
             } else {
