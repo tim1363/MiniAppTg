@@ -14,8 +14,9 @@
             align-items: center;
             background: linear-gradient(45deg, #FFC0CB, #FFB6C1, #FF69B4, #FF1493, #C71585, #DB7093);
             background-size: 400% 400%;
-            animation: gradientAnimation 15s ease infinite;
+            animation: gradientAnimation 5s ease infinite;
             font-family: Arial, sans-serif;
+            transition: background 1s ease-in-out, color 1s ease-in-out;
         }
 
         /* Анимация переливания градиента */
@@ -37,9 +38,59 @@
             font-size: 4em;
             text-align: center;
         }
+
+        /* Стиль для кнопок */
+        .button-container {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .button {
+            padding: 10px 20px;
+            margin: 10px;
+            border: 2px solid white;
+            background-color: transparent;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: white;
+            color: black;
+        }
+
+        /* После 10 секунд фон станет черным */
+        body.black-bg {
+            background-color: black;
+            background-image: none;
+        }
+
+        h1.black-bg {
+            color: white;
+        }
+
     </style>
 </head>
 <body>
-    <h1>By KoTim</h1>
+    <h1 id="mainText">By KoTim</h1>
+
+    <!-- Контейнер для кнопок -->
+    <div class="button-container" id="buttonContainer">
+        <button class="button">Кнопка 1</button>
+        <button class="button">Кнопка 2</button>
+        <button class="button">Кнопка 3</button>
+    </div>
+
+    <script>
+        // Через 10 секунд сменяем фон на черный и изменяем текст на "Главное меню"
+        setTimeout(() => {
+            document.body.classList.add('black-bg');
+            const mainText = document.getElementById('mainText');
+            mainText.textContent = 'Главное меню';
+            document.getElementById('buttonContainer').style.display = 'block';
+        }, 10000);
+    </script>
 </body>
 </html>
