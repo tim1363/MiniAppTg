@@ -303,7 +303,7 @@ namespace MultiTelegram
             updateTimer.Start();
         }
 
-        private async void CreateInstanceButton_Click(object sender, EventArgs e)
+        private void CreateInstanceButton_Click(object sender, EventArgs e)
         {
             try
             {
