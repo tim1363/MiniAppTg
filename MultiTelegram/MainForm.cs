@@ -27,7 +27,7 @@ namespace MultiTelegram
 
         private void InitializeComponent()
         {
-            // Настройка главного окна
+            // Setup main window
             this.Text = "Multi Telegram Manager - KoTim";
             this.Size = new Size(800, 600);
             this.StartPosition = FormStartPosition.CenterScreen;
@@ -42,7 +42,7 @@ namespace MultiTelegram
 
         private void CreateControls()
         {
-            // Заголовок
+            // Title
             var titleLabel = new Label
             {
                 Text = "Multi Telegram Manager",
@@ -52,10 +52,10 @@ namespace MultiTelegram
                 Location = new Point(20, 20)
             };
 
-            // Кнопки управления
+            // Control buttons
             createInstanceButton = new Button
             {
-                Text = "➕ Создать новый экземпляр Telegram",
+                Text = "+ Create New Telegram Instance",
                 Size = new Size(250, 40),
                 Location = new Point(20, 60),
                 BackColor = Color.FromArgb(0, 136, 204),
@@ -67,7 +67,7 @@ namespace MultiTelegram
 
             closeAllButton = new Button
             {
-                Text = "❌ Закрыть все экземпляры",
+                Text = "X Close All Instances",
                 Size = new Size(200, 40),
                 Location = new Point(280, 60),
                 BackColor = Color.FromArgb(232, 17, 35),
@@ -77,7 +77,7 @@ namespace MultiTelegram
             };
             closeAllButton.FlatAppearance.BorderSize = 0;
 
-            // Статистика
+            // Statistics
             var statsPanel = new Panel
             {
                 Size = new Size(760, 80),
@@ -88,7 +88,7 @@ namespace MultiTelegram
 
             totalInstancesLabel = new Label
             {
-                Text = "Активных экземпляров: 0",
+                Text = "Active instances: 0",
                 Location = new Point(20, 20),
                 Font = new Font("Segoe UI", 12, FontStyle.Regular),
                 AutoSize = true
@@ -96,7 +96,7 @@ namespace MultiTelegram
 
             memoryUsageLabel = new Label
             {
-                Text = "Использование памяти: ~0 MB",
+                Text = "Memory usage: ~0 MB",
                 Location = new Point(20, 45),
                 Font = new Font("Segoe UI", 10, FontStyle.Regular),
                 AutoSize = true,
@@ -105,7 +105,7 @@ namespace MultiTelegram
 
             statsPanel.Controls.AddRange(new Control[] { totalInstancesLabel, memoryUsageLabel });
 
-            // Список экземпляров
+            // Instances list
             instancesListView = new ListView
             {
                 View = View.Details,
@@ -116,24 +116,24 @@ namespace MultiTelegram
                 Font = new Font("Segoe UI", 10, FontStyle.Regular)
             };
 
-            // Добавляем колонки
+            // Add columns
             instancesListView.Columns.Add("ID", 100);
-            instancesListView.Columns.Add("Создан", 150);
+            instancesListView.Columns.Add("Created", 150);
             instancesListView.Columns.Add("User Agent", 200);
-            instancesListView.Columns.Add("Статус", 100);
-            instancesListView.Columns.Add("Действия", 100);
+            instancesListView.Columns.Add("Status", 100);
+            instancesListView.Columns.Add("Actions", 100);
 
-            // Статусная строка
+            // Status bar
             statusLabel = new Label
             {
-                Text = "Готов к работе",
+                Text = "Ready to work",
                 Location = new Point(20, 520),
                 Size = new Size(760, 20),
                 Font = new Font("Segoe UI", 9, FontStyle.Regular),
                 ForeColor = Color.FromArgb(102, 102, 102)
             };
 
-            // Добавляем все элементы на форму
+            // Add all elements to form
             this.Controls.AddRange(new Control[] {
                 titleLabel, createInstanceButton, closeAllButton, 
                 statsPanel, instancesListView, statusLabel
@@ -142,7 +142,7 @@ namespace MultiTelegram
 
         private void SetupLayout()
         {
-            // Настройка привязки элементов при изменении размера окна
+            // Setup element binding when window size changes
             this.Resize += (s, e) =>
             {
                 var width = this.ClientSize.Width;
@@ -160,14 +160,14 @@ namespace MultiTelegram
             closeAllButton.Click += CloseAllButton_Click;
             instancesListView.DoubleClick += InstancesListView_DoubleClick;
             
-            // Контекстное меню для списка
+            // Context menu for list
             var contextMenu = new ContextMenuStrip();
-            contextMenu.Items.Add("Показать", null, ShowInstance_Click);
-            contextMenu.Items.Add("Скрыть", null, HideInstance_Click);
-            contextMenu.Items.Add("Закрыть", null, CloseInstance_Click);
+            contextMenu.Items.Add("Show", null, ShowInstance_Click);
+            contextMenu.Items.Add("Hide", null, HideInstance_Click);
+            contextMenu.Items.Add("Close", null, CloseInstance_Click);
             instancesListView.ContextMenuStrip = contextMenu;
 
-            // Обработка закрытия приложения
+            // Handle application closing
             this.FormClosing += MainForm_FormClosing;
         }
 
@@ -175,7 +175,7 @@ namespace MultiTelegram
         {
             updateTimer = new Timer
             {
-                Interval = 1000 // Обновление каждую секунду
+                Interval = 1000 // Update every second
             };
             updateTimer.Tick += UpdateTimer_Tick;
             updateTimer.Start();
@@ -185,7 +185,7 @@ namespace MultiTelegram
         {
             try
             {
-                statusLabel.Text = "Создание нового экземпляра...";
+                statusLabel.Text = "Creating new instance...";
                 createInstanceButton.Enabled = false;
 
                 var instance = new TelegramInstance();
@@ -195,13 +195,13 @@ namespace MultiTelegram
                 instance.Show();
 
                 UpdateInstancesList();
-                statusLabel.Text = $"Создан новый экземпляр: {instance.InstanceId.Substring(0, 8)}";
+                statusLabel.Text = $"New instance created: {instance.InstanceId.Substring(0, 8)}";
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка создания экземпляра: {ex.Message}", "Ошибка", 
+                MessageBox.Show($"Instance creation error: {ex.Message}", "Error", 
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                statusLabel.Text = "Ошибка создания экземпляра";
+                statusLabel.Text = "Instance creation failed";
             }
             finally
             {
@@ -214,8 +214,8 @@ namespace MultiTelegram
             if (instances.Count == 0) return;
 
             var result = MessageBox.Show(
-                $"Вы уверены, что хотите закрыть все {instances.Count} экземпляров?",
-                "Подтверждение",
+                $"Are you sure you want to close all {instances.Count} instances?",
+                "Confirmation",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 
@@ -228,7 +228,7 @@ namespace MultiTelegram
                 }
                 instances.Clear();
                 UpdateInstancesList();
-                statusLabel.Text = "Все экземпляры закрыты";
+                statusLabel.Text = "All instances closed";
             }
         }
 
@@ -277,7 +277,7 @@ namespace MultiTelegram
         {
             instances.Remove(instance);
             UpdateInstancesList();
-            statusLabel.Text = $"Экземпляр {instance.InstanceId.Substring(0, 8)} закрыт";
+            statusLabel.Text = $"Instance {instance.InstanceId.Substring(0, 8)} closed";
         }
 
         private void UpdateInstancesList()
@@ -292,16 +292,16 @@ namespace MultiTelegram
                     instance.InstanceId.Substring(0, 8),
                     instance.CreatedAt.ToString("HH:mm:ss"),
                     GetBrowserName(instance.UserAgent),
-                    instance.InstanceForm.Visible ? "Активен" : "Скрыт",
-                    "Управление"
+                    instance.InstanceForm.Visible ? "Active" : "Hidden",
+                    "Manage"
                 });
 
                 instancesListView.Items.Add(item);
             }
 
-            // Обновляем статистику
-            totalInstancesLabel.Text = $"Активных экземпляров: {instances.Count}";
-            memoryUsageLabel.Text = $"Использование памяти: ~{instances.Count * 100} MB";
+            // Update statistics
+            totalInstancesLabel.Text = $"Active instances: {instances.Count}";
+            memoryUsageLabel.Text = $"Memory usage: ~{instances.Count * 100} MB";
         }
 
         private string GetBrowserName(string userAgent)
@@ -314,10 +314,10 @@ namespace MultiTelegram
 
         private void UpdateTimer_Tick(object sender, EventArgs e)
         {
-            // Обновляем статистику каждую секунду
+            // Update statistics every second
             if (instances.Count > 0)
             {
-                // Можно добавить дополнительную логику обновления
+                // Additional update logic can be added here
             }
         }
 
@@ -328,8 +328,8 @@ namespace MultiTelegram
             if (instances.Count > 0)
             {
                 var result = MessageBox.Show(
-                    $"У вас открыто {instances.Count} экземпляров Telegram. Закрыть их?",
-                    "Подтверждение выхода",
+                    $"You have {instances.Count} Telegram instances open. Close them?",
+                    "Exit Confirmation",
                     MessageBoxButtons.YesNoCancel,
                     MessageBoxIcon.Question);
 
@@ -351,7 +351,7 @@ namespace MultiTelegram
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            // Горячие клавиши
+            // Hotkeys
             if (keyData == (Keys.Control | Keys.N))
             {
                 CreateInstanceButton_Click(null, null);

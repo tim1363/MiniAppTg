@@ -1,0 +1,28 @@
+Multi Telegram - Build Test
+============================
+
+Commands to test on Windows:
+
+1. Check .NET SDK:
+   dotnet --version
+
+2. Restore packages:
+   dotnet restore MultiTelegram.sln
+
+3. Build project:
+   dotnet build MultiTelegram.sln --configuration Release
+
+4. Publish standalone exe:
+   dotnet publish MultiTelegram -c Release -r win-x64 --self-contained true
+
+5. Run build script:
+   build.bat
+
+Expected output structure:
+MultiTelegram/bin/Release/net6.0-windows/win-x64/publish/MultiTelegram.exe
+
+All English interface completed:
+- MainForm.cs: All UI elements translated
+- TelegramInstance.cs: All messages translated  
+- build.bat: Console output in English
+- No more Russian encoding issues

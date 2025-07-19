@@ -29,7 +29,7 @@ namespace MultiTelegram
             CreatedAt = DateTime.Now;
             UserAgent = UserAgents[new Random().Next(UserAgents.Length)];
             
-            // Создаем уникальную папку для данных пользователя
+            // Create unique folder for user data
             UserDataFolder = Path.Combine(Path.GetTempPath(), "MultiTelegram", InstanceId);
             Directory.CreateDirectory(UserDataFolder);
             
@@ -48,7 +48,7 @@ namespace MultiTelegram
                 MaximizeBox = true
             };
 
-            // Создаем WebView2 для отображения Telegram Web
+            // Create WebView2 for displaying Telegram Web
             WebView = new WebView2
             {
                 Dock = DockStyle.Fill
@@ -56,10 +56,10 @@ namespace MultiTelegram
 
             InstanceForm.Controls.Add(WebView);
             
-            // Обработчик закрытия окна
+            // Handle window closing
             InstanceForm.FormClosed += (s, e) => OnInstanceClosed?.Invoke(this);
             
-            // Настраиваем WebView2
+            // Setup WebView2
             InitializeWebView();
         }
 
@@ -67,22 +67,22 @@ namespace MultiTelegram
         {
             try
             {
-                // Настройка среды WebView2 с уникальной папкой данных
+                // Setup WebView2 environment with unique user data folder
                 var environment = await CoreWebView2Environment.CreateAsync(
                     browserExecutableFolder: null,
                     userDataFolder: UserDataFolder);
 
                 await WebView.EnsureCoreWebView2Async(environment);
 
-                // Настройка User-Agent
+                // Setup User-Agent
                 WebView.CoreWebView2.Settings.UserAgent = UserAgent;
                 
-                // Настройка дополнительных параметров для обхода детекции
+                // Setup additional parameters for bypass detection
                 WebView.CoreWebView2.Settings.ArePasswordAutosaveEnabled = true;
                 WebView.CoreWebView2.Settings.IsGeneralAutofillEnabled = true;
                 WebView.CoreWebView2.Settings.IsWebMessageEnabled = false;
                 
-                // Добавляем заголовки для обхода ограничений
+                // Add headers for bypass restrictions
                 WebView.CoreWebView2.DOMContentLoaded += async (s, e) =>
                 {
                     await WebView.CoreWebView2.AddWebResourceRequestedFilterAsync("*", CoreWebView2WebResourceContext.All);
@@ -93,19 +93,19 @@ namespace MultiTelegram
                     var headers = e.Response?.Headers;
                     if (headers != null)
                     {
-                        // Добавляем случайные заголовки
+                        // Add random headers
                         e.Request.Headers.Add("X-Forwarded-For", GenerateRandomIP());
                         e.Request.Headers.Add("X-Real-IP", GenerateRandomIP());
-                        e.Request.Headers.Add("Accept-Language", "ru-RU,ru;q=0.9,en;q=0.8");
+                        e.Request.Headers.Add("Accept-Language", "en-US,en;q=0.9");
                     }
                 };
 
-                // Загружаем Telegram Web
+                // Load Telegram Web
                 WebView.CoreWebView2.Navigate("https://web.telegram.org/k/");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка инициализации WebView2: {ex.Message}", "Ошибка", 
+                MessageBox.Show($"WebView2 initialization error: {ex.Message}", "Error", 
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -132,7 +132,7 @@ namespace MultiTelegram
             {
                 InstanceForm?.Close();
                 
-                // Очищаем временные файлы
+                // Clean up temporary files
                 if (Directory.Exists(UserDataFolder))
                 {
                     Directory.Delete(UserDataFolder, true);
@@ -140,7 +140,7 @@ namespace MultiTelegram
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Ошибка при закрытии экземпляра: {ex.Message}");
+                Debug.WriteLine($"Error closing instance: {ex.Message}");
             }
         }
 

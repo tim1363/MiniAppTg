@@ -8,7 +8,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>telegram.ico</ApplicationIcon>
     <AssemblyTitle>Multi Telegram</AssemblyTitle>
-    <AssemblyDescription>Приложение для запуска множественных экземпляров Telegram</AssemblyDescription>
+    <AssemblyDescription>Application for running multiple Telegram instances</AssemblyDescription>
     <AssemblyCompany>KoTim</AssemblyCompany>
     <AssemblyProduct>Multi Telegram</AssemblyProduct>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>

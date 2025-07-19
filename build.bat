@@ -1,53 +1,54 @@
 @echo off
-echo 🚀 Multi Telegram - Сборка Windows приложения
-echo ================================================
+chcp 65001 >nul 2>&1
+echo Multi Telegram - Windows Application Build
+echo ==========================================
 
 echo.
-echo 📦 Проверка .NET SDK...
+echo [1/4] Checking .NET SDK...
 dotnet --version >nul 2>&1
 if errorlevel 1 (
-    echo ❌ .NET SDK не найден! Установите .NET 6.0 или выше
-    echo 📥 Скачать: https://dotnet.microsoft.com/download
+    echo ERROR: .NET SDK not found! Please install .NET 6.0 or higher
+    echo Download: https://dotnet.microsoft.com/download
     pause
     exit /b 1
 )
 
-echo ✅ .NET SDK найден
+echo SUCCESS: .NET SDK found
 
 echo.
-echo 🔧 Восстановление зависимостей...
+echo [2/4] Restoring dependencies...
 dotnet restore MultiTelegram.sln
 if errorlevel 1 (
-    echo ❌ Ошибка восстановления зависимостей
+    echo ERROR: Failed to restore dependencies
     pause
     exit /b 1
 )
 
 echo.
-echo 🏗️ Сборка приложения (Release)...
+echo [3/4] Building application (Release)...
 dotnet build MultiTelegram.sln --configuration Release --no-restore
 if errorlevel 1 (
-    echo ❌ Ошибка сборки
+    echo ERROR: Build failed
     pause
     exit /b 1
 )
 
 echo.
-echo 📦 Создание исполняемого файла...
+echo [4/4] Creating executable file...
 dotnet publish MultiTelegram -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true
 if errorlevel 1 (
-    echo ❌ Ошибка создания exe файла
+    echo ERROR: Failed to create exe file
     pause
     exit /b 1
 )
 
 echo.
-echo ✅ Сборка завершена успешно!
+echo SUCCESS: Build completed successfully!
 echo.
-echo 📁 Файлы находятся в:
+echo Output directory:
 echo    MultiTelegram\bin\Release\net6.0-windows\win-x64\publish\
 echo.
-echo 🎯 Готовый файл: MultiTelegram.exe
+echo Executable file: MultiTelegram.exe
 echo.
 
 pause
