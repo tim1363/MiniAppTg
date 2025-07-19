@@ -1,10 +1,42 @@
+# Visual Studio / .NET
+bin/
+obj/
+*.exe
+*.pdb
+*.dll
+*.cache
+*.suo
+*.user
+*.sln.docstates
+
+# Rider
+.idea/
+
+# Visual Studio Code
+.vscode/
+
+# Dependencies
+packages/
 node_modules/
-dist/
+
+# Logs
 *.log
 *.tmp
+
+# OS Files
 .DS_Store
 Thumbs.db
+
+# Build artifacts
+dist/
+publish/
+
+# Temporary folders
+temp/
+tmp/
+
+# Environment files
 .env
-*.exe
-*.dmg
-*.zip
+
+# WebView2 cache
+**/EBWebView/**
