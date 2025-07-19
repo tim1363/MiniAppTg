@@ -8,7 +8,7 @@ using System.Drawing;
 
 namespace MultiTelegram
 {
-    public class TelegramInstance
+    public class TelegramInstanceSimple
     {
         public string InstanceId { get; private set; }
         public string UserDataFolder { get; private set; }
@@ -19,19 +19,16 @@ namespace MultiTelegram
 
         private static readonly string[] UserAgents = {
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/120.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36"
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
         };
 
-        public TelegramInstance()
+        public TelegramInstanceSimple()
         {
             InstanceId = Guid.NewGuid().ToString();
             CreatedAt = DateTime.Now;
             UserAgent = UserAgents[new Random().Next(UserAgents.Length)];
             
-            // Create unique folder for user data in persistent location
+            // Create unique folder for user data
             var appDataFolder = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), 
                 "MultiTelegram", "Instances");
@@ -42,14 +39,13 @@ namespace MultiTelegram
             CreateInstanceWindow();
         }
 
-        public TelegramInstance(InstanceInfo info)
+        public TelegramInstanceSimple(InstanceInfo info)
         {
             InstanceId = info.InstanceId;
             UserDataFolder = info.UserDataFolder;
             UserAgent = info.UserAgent;
             CreatedAt = info.CreatedAt;
             
-            // Ensure folder exists
             if (!Directory.Exists(UserDataFolder))
             {
                 Directory.CreateDirectory(UserDataFolder);
@@ -76,11 +72,10 @@ namespace MultiTelegram
                 StartPosition = FormStartPosition.CenterScreen,
                 ShowIcon = false,
                 MinimizeBox = true,
-                MaximizeBox = true,
-                Icon = null // Will be set later if available
+                MaximizeBox = true
             };
 
-            // Create WebView2 for displaying Telegram Web
+            // Create WebView2
             WebView = new WebView2
             {
                 Dock = DockStyle.Fill
@@ -95,16 +90,22 @@ namespace MultiTelegram
             };
             
             InstanceForm.FormClosing += (s, e) => {
-                // Save position before closing
-                var settings = SettingsManager.LoadSettings();
-                var instanceInfo = settings.SavedInstances.Find(i => i.InstanceId == InstanceId);
-                if (instanceInfo != null)
+                try
                 {
-                    instanceInfo.WindowX = InstanceForm.Location.X;
-                    instanceInfo.WindowY = InstanceForm.Location.Y;
-                    instanceInfo.WindowWidth = InstanceForm.Size.Width;
-                    instanceInfo.WindowHeight = InstanceForm.Size.Height;
-                    SettingsManager.SaveSettings(settings);
+                    var settings = SettingsManager.LoadSettings();
+                    var instanceInfo = settings.SavedInstances.Find(i => i.InstanceId == InstanceId);
+                    if (instanceInfo != null)
+                    {
+                        instanceInfo.WindowX = InstanceForm.Location.X;
+                        instanceInfo.WindowY = InstanceForm.Location.Y;
+                        instanceInfo.WindowWidth = InstanceForm.Size.Width;
+                        instanceInfo.WindowHeight = InstanceForm.Size.Height;
+                        SettingsManager.SaveSettings(settings);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error saving window position: {ex.Message}");
                 }
             };
             
@@ -116,23 +117,20 @@ namespace MultiTelegram
         {
             try
             {
-                // Setup WebView2 environment with unique user data folder
+                // Create environment with user data folder
                 var environment = await CoreWebView2Environment.CreateAsync(
                     browserExecutableFolder: null,
                     userDataFolder: UserDataFolder);
 
                 await WebView.EnsureCoreWebView2Async(environment);
 
-                // Setup User-Agent
+                // Set User-Agent
                 WebView.CoreWebView2.Settings.UserAgent = UserAgent;
                 
-                // Setup basic WebView2 settings (using available properties)
+                // Basic settings
                 WebView.CoreWebView2.Settings.IsWebMessageEnabled = false;
-                WebView.CoreWebView2.Settings.AreDevToolsEnabled = false;
-                WebView.CoreWebView2.Settings.AreDefaultScriptDialogsEnabled = true;
-                WebView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = true;
                 
-                // Handle navigation events
+                // Navigation events
                 WebView.CoreWebView2.NavigationStarting += (s, e) =>
                 {
                     InstanceForm.Text = $"Telegram - {InstanceId.Substring(0, 8)} (Loading...)";
@@ -140,42 +138,29 @@ namespace MultiTelegram
 
                 WebView.CoreWebView2.NavigationCompleted += (s, e) =>
                 {
-                    if (e.IsSuccess)
-                    {
-                        InstanceForm.Text = $"Telegram - {InstanceId.Substring(0, 8)}";
-                    }
-                    else
-                    {
-                        InstanceForm.Text = $"Telegram - {InstanceId.Substring(0, 8)} (Error)";
-                    }
+                    InstanceForm.Text = $"Telegram - {InstanceId.Substring(0, 8)}";
                 };
 
-                // Load Telegram Web
+                // Navigate to Telegram
                 WebView.CoreWebView2.Navigate("https://web.telegram.org/k/");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"WebView2 initialization error: {ex.Message}\n\nMake sure Microsoft Edge WebView2 is installed.", 
+                MessageBox.Show($"WebView2 error: {ex.Message}\n\nPlease install Microsoft Edge WebView2 Runtime.", 
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 
-                // Fallback: show simple message
+                // Fallback
                 var label = new Label
                 {
-                    Text = "WebView2 not available.\nPlease install Microsoft Edge WebView2 Runtime.",
+                    Text = "WebView2 not available.\nPlease install Microsoft Edge WebView2 Runtime.\n\nDownload from: https://developer.microsoft.com/microsoft-edge/webview2/",
                     Dock = DockStyle.Fill,
                     TextAlign = ContentAlignment.MiddleCenter,
-                    Font = new Font("Segoe UI", 12),
+                    Font = new Font("Segoe UI", 10),
                     ForeColor = Color.Red
                 };
                 InstanceForm.Controls.Clear();
                 InstanceForm.Controls.Add(label);
             }
-        }
-
-        private string GenerateRandomIP()
-        {
-            var random = new Random();
-            return $"{random.Next(1, 255)}.{random.Next(1, 255)}.{random.Next(1, 255)}.{random.Next(1, 255)}";
         }
 
         public void Show()
@@ -209,9 +194,7 @@ namespace MultiTelegram
         {
             try
             {
-                // Don't delete user data folder to preserve Telegram session
-                // The folder will be reused when instance is restored
-                Debug.WriteLine($"Instance {InstanceId} cleaned up (data preserved)");
+                Debug.WriteLine($"Instance {InstanceId} cleaned up");
             }
             catch (Exception ex)
             {
@@ -219,6 +202,6 @@ namespace MultiTelegram
             }
         }
 
-        public event Action<TelegramInstance> OnInstanceClosed;
+        public event Action<TelegramInstanceSimple> OnInstanceClosed;
     }
 }
