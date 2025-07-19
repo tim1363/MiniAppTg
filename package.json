@@ -1,0 +1,36 @@
+{
+  "name": "multi-telegram",
+  "version": "1.0.0",
+  "description": "Приложение для запуска множественных экземпляров Telegram",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "dev": "electron . --debug",
+    "test": "node test.js",
+    "clean": "node -e \"require('fs').unlinkSync('test.js')\""
+  },
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "dependencies": {
+    "uuid": "^9.0.1"
+  },
+  "build": {
+    "appId": "com.kotim.multitelegram",
+    "productName": "Multi Telegram",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!node_modules",
+      "!dist"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    }
+  }
+}
