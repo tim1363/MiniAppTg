@@ -6,24 +6,23 @@
     <UseWindowsForms>true</UseWindowsForms>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon>telegram.ico</ApplicationIcon>
-    <AssemblyTitle>Multi Telegram</AssemblyTitle>
-    <AssemblyDescription>Application for running multiple Telegram instances</AssemblyDescription>
+    <AssemblyTitle>Multi Telegram Manager</AssemblyTitle>
+    <AssemblyDescription>Application for running multiple isolated Telegram instances</AssemblyDescription>
     <AssemblyCompany>KoTim</AssemblyCompany>
-    <AssemblyProduct>Multi Telegram</AssemblyProduct>
+    <AssemblyProduct>Multi Telegram Manager</AssemblyProduct>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
+    <Copyright>© 2024 KoTim. All rights reserved.</Copyright>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2151.40" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2210.55" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="telegram.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>
